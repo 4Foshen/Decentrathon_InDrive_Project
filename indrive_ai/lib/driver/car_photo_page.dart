@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:indrive_ai/api.dart';
 import 'result_page.dart';
 import 'package:indrive_ai/theme/app_colors.dart';
 
@@ -19,12 +20,12 @@ class CarPhotoPage extends StatefulWidget {
 }
 
 class _CarPhotoPageState extends State<CarPhotoPage> {
-  File? carPhoto; // фото сохраняем как File
+  File? carPhoto;
   final ImagePicker _picker = ImagePicker();
 
   Future<void> _uploadPhoto() async {
     final XFile? pickedFile = await _picker.pickImage(
-      source: ImageSource.camera, // можно заменить на ImageSource.gallery
+      source: ImageSource.camera,
       imageQuality: 80,
     );
 
@@ -35,20 +36,40 @@ class _CarPhotoPageState extends State<CarPhotoPage> {
     }
   }
 
-  void _goNext() {
+  void _goNext() async {
     if (carPhoto == null) return;
 
-    Navigator.push(
-      context,
-      buildPageTransition(
-        ResultPage(
-          driverName: widget.driverName,
-          carModel: widget.carModel,
-          carPhoto: carPhoto!.path, // передаём путь как строку
-        ),
-        type: TransitionType.scale,
-      ),
+    // Показываем индикатор загрузки
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) => const Center(child: CircularProgressIndicator()),
     );
+
+    try {
+      // Отправляем фото на FastAPI
+      String status = await ApiService.checkCar(carPhoto!);
+
+      Navigator.pop(context); // закрываем индикатор
+
+      // Переходим на ResultPage и передаём статус
+      Navigator.push(
+        context,
+        buildPageTransition(
+          ResultPage(
+            driverName: widget.driverName,
+            carModel: widget.carModel,
+            carPhoto: carPhoto!.path,
+            carStatus: status,
+          ),
+          type: TransitionType.scale,
+        ),
+      );
+    } catch (e) {
+      Navigator.pop(context); // закрываем индикатор
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text(e.toString())));
+    }
   }
 
   @override
@@ -66,7 +87,6 @@ class _CarPhotoPageState extends State<CarPhotoPage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            // Фото или иконка
             carPhoto != null
                 ? ClipRRect(
                     borderRadius: BorderRadius.circular(16),
@@ -112,8 +132,6 @@ class _CarPhotoPageState extends State<CarPhotoPage> {
                     ],
                   ),
             const SizedBox(height: 40),
-
-            // Кнопка Далее
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(

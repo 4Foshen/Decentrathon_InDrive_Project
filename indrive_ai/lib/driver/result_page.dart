@@ -7,13 +7,15 @@ import 'package:indrive_ai/theme/app_colors.dart';
 class ResultPage extends StatefulWidget {
   final String driverName;
   final String carModel;
-  final String carPhoto; // путь к файлу или ассету
+  final String carPhoto; // путь к файлу
+  final String carStatus; // полученный от API
 
   const ResultPage({
     super.key,
     required this.driverName,
     required this.carModel,
     required this.carPhoto,
+    required this.carStatus,
   });
 
   @override
@@ -21,28 +23,12 @@ class ResultPage extends StatefulWidget {
 }
 
 class _ResultPageState extends State<ResultPage> {
-  String condition = "Определяется...";
-
-  @override
-  void initState() {
-    super.initState();
-    _analyzeCar();
-  }
-
-  void _analyzeCar() async {
-    // TODO: запрос в API для анализа состояния авто
-    await Future.delayed(const Duration(seconds: 2));
-    setState(() {
-      condition = "Хорошее состояние"; // заглушка
-    });
-  }
-
   void _saveData() async {
     final driverData = {
       "name": widget.driverName,
       "car": widget.carModel,
       "photo": widget.carPhoto,
-      "status": condition,
+      "status": widget.carStatus,
     };
 
     await DriverStorage.saveDriver(driverData);
@@ -63,8 +49,6 @@ class _ResultPageState extends State<ResultPage> {
 
   @override
   Widget build(BuildContext context) {
-    final isFile = File(widget.carPhoto).existsSync(); // проверка: файл или нет
-
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
@@ -81,11 +65,12 @@ class _ResultPageState extends State<ResultPage> {
             // Фото авто
             ClipRRect(
               borderRadius: BorderRadius.circular(16),
-              child: isFile
-                  ? Image.file(File(widget.carPhoto),
-                      height: 300, width: 300, fit: BoxFit.cover)
-                  : Image.asset(widget.carPhoto,
-                      height: 200, fit: BoxFit.cover),
+              child: Image.file(
+                File(widget.carPhoto),
+                height: 300,
+                width: 300,
+                fit: BoxFit.cover,
+              ),
             ),
             const SizedBox(height: 24),
 
@@ -104,7 +89,7 @@ class _ResultPageState extends State<ResultPage> {
                 ],
               ),
               child: Text(
-                "Состояние авто: $condition",
+                "Состояние авто: ${widget.carStatus}",
                 style: const TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
@@ -112,7 +97,6 @@ class _ResultPageState extends State<ResultPage> {
                 ),
               ),
             ),
-
             const SizedBox(height: 40),
 
             // Основная кнопка
