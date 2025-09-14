@@ -23,9 +23,9 @@ class _CarPhotoPageState extends State<CarPhotoPage> {
   File? carPhoto;
   final ImagePicker _picker = ImagePicker();
 
-  Future<void> _uploadPhoto() async {
+  Future<void> _pickImage(ImageSource source) async {
     final XFile? pickedFile = await _picker.pickImage(
-      source: ImageSource.camera,
+      source: source,
       imageQuality: 80,
     );
 
@@ -34,6 +34,39 @@ class _CarPhotoPageState extends State<CarPhotoPage> {
         carPhoto = File(pickedFile.path);
       });
     }
+  }
+
+  void _showPickOptions() {
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      builder: (_) {
+        return SafeArea(
+          child: Wrap(
+            children: [
+              ListTile(
+                leading: const Icon(Icons.camera_alt, color: AppColors.primary),
+                title: const Text("Сделать фото"),
+                onTap: () {
+                  Navigator.pop(context);
+                  _pickImage(ImageSource.camera);
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.photo_library, color: AppColors.primary),
+                title: const Text("Выбрать из галереи"),
+                onTap: () {
+                  Navigator.pop(context);
+                  _pickImage(ImageSource.gallery);
+                },
+              ),
+            ],
+          ),
+        );
+      },
+    );
   }
 
   void _goNext() async {
@@ -100,7 +133,7 @@ class _CarPhotoPageState extends State<CarPhotoPage> {
                 : Column(
                     children: [
                       GestureDetector(
-                        onTap: _uploadPhoto,
+                        onTap: _showPickOptions,
                         child: Container(
                           padding: const EdgeInsets.all(24),
                           decoration: BoxDecoration(
