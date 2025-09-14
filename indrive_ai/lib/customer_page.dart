@@ -70,14 +70,10 @@ class _CustomerPageState extends State<CustomerPage>
   Widget _buildStatusContainer(String status) {
     Color bgColor;
     switch (status) {
-      case "Плохое состояние":
+      case "битая" || "грязная":
         bgColor = Colors.red.shade600;
         break;
-      case "Нормальное состояние":
-        bgColor = Colors.yellow.shade700;
-        break;
-      case "Хорошее состояние":
-      case "Отличное состояние":
+      case "чистая" || "не битая":
         bgColor = Colors.green.shade600;
         break;
       default:
