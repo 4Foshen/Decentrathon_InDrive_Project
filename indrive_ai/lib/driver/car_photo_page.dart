@@ -55,7 +55,8 @@ class _CarPhotoPageState extends State<CarPhotoPage> {
                 },
               ),
               ListTile(
-                leading: const Icon(Icons.photo_library, color: AppColors.primary),
+                leading:
+                    const Icon(Icons.photo_library, color: AppColors.primary),
                 title: const Text("Выбрать из галереи"),
                 onTap: () {
                   Navigator.pop(context);
@@ -72,7 +73,6 @@ class _CarPhotoPageState extends State<CarPhotoPage> {
   void _goNext() async {
     if (carPhoto == null) return;
 
-    // Показываем индикатор загрузки
     showDialog(
       context: context,
       barrierDismissible: false,
@@ -80,12 +80,11 @@ class _CarPhotoPageState extends State<CarPhotoPage> {
     );
 
     try {
-      // Отправляем фото на FastAPI
-      String status = await ApiService.checkCar(carPhoto!);
+      // 🔹 Отправляем фото на FastAPI
+      var result = await ApiService.checkCar(carPhoto!);
 
       Navigator.pop(context); // закрываем индикатор
 
-      // Переходим на ResultPage и передаём статус
       Navigator.push(
         context,
         buildPageTransition(
@@ -93,13 +92,14 @@ class _CarPhotoPageState extends State<CarPhotoPage> {
             driverName: widget.driverName,
             carModel: widget.carModel,
             carPhoto: carPhoto!.path,
-            carStatus: status,
+            cleanliness: result['cleanliness'],
+            integrity: result['integrity'],
           ),
           type: TransitionType.scale,
         ),
       );
     } catch (e) {
-      Navigator.pop(context); // закрываем индикатор
+      Navigator.pop(context);
       ScaffoldMessenger.of(context)
           .showSnackBar(SnackBar(content: Text(e.toString())));
     }

@@ -32,12 +32,12 @@ class _CustomerPageState extends State<CustomerPage>
   }
 
   Future<void> _loadOrders() async {
-  final savedDrivers = await DriverStorage.loadDrivers();
-  setState(() {
-    orders.addAll(savedDrivers.map((driver) => _generateOrder(driver)).toList());
-  });
-}
-
+    final savedDrivers = await DriverStorage.loadDrivers();
+    setState(() {
+      orders.addAll(
+          savedDrivers.map((driver) => _generateOrder(driver)).toList());
+    });
+  }
 
   Map<String, dynamic> _generateOrder(Map<String, dynamic> driver) {
     final random = Random();
@@ -54,7 +54,8 @@ class _CustomerPageState extends State<CustomerPage>
     return {
       "name": driver["name"],
       "car": driver["car"],
-      "status": driver["status"],
+      "cleanliness": driver["cleanliness"],
+      "integrity": driver["integrity"],
       "price": "$price₸",
       "photo": avatarUrl,
     };
@@ -130,7 +131,15 @@ class _CustomerPageState extends State<CustomerPage>
                         style: const TextStyle(
                             color: AppColors.textSecondary, fontSize: 14)),
                     const SizedBox(height: 8),
-                    _buildStatusContainer(order["status"]),
+
+                    // 👇 Две метки
+                    Row(
+                      children: [
+                        _buildStatusContainer(order["cleanliness"]),
+                        const SizedBox(width: 6),
+                        _buildStatusContainer(order["integrity"]),
+                      ],
+                    ),
                   ],
                 ),
               ),

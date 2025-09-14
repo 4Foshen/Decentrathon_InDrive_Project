@@ -8,14 +8,16 @@ class ResultPage extends StatefulWidget {
   final String driverName;
   final String carModel;
   final String carPhoto; // путь к файлу
-  final String carStatus; // полученный от API
+  final String cleanliness;
+  final String integrity;
 
   const ResultPage({
     super.key,
     required this.driverName,
     required this.carModel,
     required this.carPhoto,
-    required this.carStatus,
+    required this.cleanliness,
+    required this.integrity,
   });
 
   @override
@@ -28,7 +30,8 @@ class _ResultPageState extends State<ResultPage> {
       "name": widget.driverName,
       "car": widget.carModel,
       "photo": widget.carPhoto,
-      "status": widget.carStatus,
+      "cleanliness": widget.cleanliness,
+      "integrity": widget.integrity,
     };
 
     await DriverStorage.saveDriver(driverData);
@@ -89,7 +92,7 @@ class _ResultPageState extends State<ResultPage> {
                 ],
               ),
               child: Text(
-                "Состояние авто: ${widget.carStatus}",
+                "Состояние авто: ${widget.cleanliness + "/" + widget.integrity}",
                 style: const TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,

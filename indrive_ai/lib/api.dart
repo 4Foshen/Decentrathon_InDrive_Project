@@ -6,12 +6,11 @@ class ApiService {
   static const String baseUrl = "http://10.0.2.2:8000";
 
   /// Статический метод для проверки состояния автомобиля
-  static Future<String> checkCar(File imageFile) async {
+  static Future<Map<String, dynamic>> checkCar(File imageFile) async {
     try {
       var uri = Uri.parse("$baseUrl/check_car/");
       var request = http.MultipartRequest('POST', uri);
 
-      // Добавляем файл
       request.files.add(
         await http.MultipartFile.fromPath(
           'file',
@@ -19,13 +18,12 @@ class ApiService {
         ),
       );
 
-      // Отправляем запрос
       var response = await request.send();
 
       if (response.statusCode == 200) {
         var respStr = await response.stream.bytesToString();
         var jsonResp = json.decode(respStr);
-        return jsonResp['status']; // "clean" или "dirty"
+        return jsonResp; // возвращаем весь JSON
       } else {
         throw Exception("Ошибка сервера: ${response.statusCode}");
       }
